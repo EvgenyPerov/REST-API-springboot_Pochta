@@ -4,6 +4,7 @@ import my.home.forms.ChangeStatusForm;
 import my.home.forms.RegistrationForm;
 import my.home.models.Office;
 import my.home.models.Pack;
+import my.home.models.Status;
 import my.home.models.TypeStatus;
 import my.home.repositories.PackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class PackService {
         this.officeService = officeService;
     }
 
-    public String addPack(RegistrationForm form){
+    public Pack addPack(RegistrationForm form){
         String identifier = generateId(form);
         Pack pack = Pack.builder()
                 .identifier(identifier)
@@ -39,12 +40,11 @@ public class PackService {
                 .addressDestination(form.getAddress())
                 .indexDestination(form.getIndex())
                 .build();
-        if (pack == null) return "";
-        else {
+        if (pack != null) {
             repository.save(pack);
             statusTrackService.addTrack(pack, officeService.getOfficeByIndex(form.getIndexCurrentOffice()), TypeStatus.PROCESS);
-            return identifier;
         }
+            return pack;
     }
 
     private String generateId(RegistrationForm form){
@@ -69,9 +69,13 @@ public class PackService {
         return repository.findPackByIdentifierIs(ident);
     }
 
-    public boolean changeStatusOfTrack(ChangeStatusForm form){
+    public Status changeStatusOfTrack(ChangeStatusForm form){
         Pack pack = findOnePackByIdentificator(form.getIdentifier());
         Office office = officeService.getOfficeByIndex(form.getIndex());
         return statusTrackService.addTrack(pack, office, form.getTypeStatus());
+    }
+
+    public List<Pack> findAllPacks(){
+        return repository.findAll();
     }
 }

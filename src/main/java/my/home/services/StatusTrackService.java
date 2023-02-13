@@ -5,7 +5,6 @@ import my.home.repositories.StatusTrackRepository;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,37 +20,24 @@ public class StatusTrackService {
         this.statusTrackRepository = statusTrackRepository;
     }
 
-    public boolean addTrack(Pack pack, Office office, TypeStatus typeStatus){
+    public Status addTrack(Pack pack, Office office, TypeStatus typeStatus){
         Status status = Status.builder()
                 .pack(pack)
                 .office(office)
                 .name(typeStatus)
                 .date(new Date())
                 .build();
-        if (status == null) return false;
-        else {
+        if (status != null)  {
             statusTrackRepository.save(status);
             logger.info("Добавлен трекер: " + pack + "; " + office + "; "+ typeStatus.name());
-            return true;
         }
+        return status;
     }
-
-    public int isCompleted(List<Status> statusList){
-        return statusList.stream().anyMatch(status ->
-            status.getName().equals(TypeStatus.COMPLETE))? 1 : 0;
-    }
-
     public List<Status> findTracksByPackIdentifier(String identifier){
         return statusTrackRepository.findStatusesByPackIdentifier(identifier);
     }
 
     public List<Status> findTracksByPackIndexExclComplete(Integer index) {
-//        List<Status> statusNoComplete = statusTrackRepository
-//                .findStatusesByNameNotLike(TypeStatus.COMPLETE);
-//
-//        List<Status> statusByOfficeIndex = statusNoComplete.stream()
-//                .filter(status -> status.getOffice().getIndex() == index)
-//                .collect(Collectors.toList());
 
         List<Status> statusByOfficeIndex = statusTrackRepository
                 .findStatusesByOfficeIndexAndNameNotLikeOrderByDate(index, TypeStatus.COMPLETE);
@@ -122,5 +108,9 @@ public class StatusTrackService {
             }
         }
     return listForDelete;
+    }
+
+    public List<Status> findAllTrackers(){
+        return statusTrackRepository.findAll();
     }
 }

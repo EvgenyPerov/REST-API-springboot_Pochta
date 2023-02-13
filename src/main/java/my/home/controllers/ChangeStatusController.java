@@ -1,20 +1,22 @@
 package my.home.controllers;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import my.home.forms.ChangeStatusForm;
 import my.home.models.Status;
-import my.home.models.TypeStatus;
 import my.home.services.OfficeService;
 import my.home.services.PackService;
 import my.home.services.StatusTrackService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-@Controller
+@Api("class Get&Change_Statuses_Controller")
+@RequestMapping("/api")
+@RestController
 public class ChangeStatusController {
 
     private StatusTrackService statusTrackService;
@@ -32,52 +34,28 @@ public class ChangeStatusController {
         this.packService = packService;
     }
 
-    @GetMapping("/tracker")
-    public String getStatus(ModelMap model) {
-        model.addAttribute("types", Arrays.asList(TypeStatus.values()));
-        model.addAttribute("findListByIdentifier",statuses);
-        if (statuses.isEmpty()) {
-            model.addAttribute("findedId","");
-        } else {
-                model.addAttribute("isCompleted",statusTrackService.isCompleted(statuses));
-                model.addAttribute("findedId",statuses.get(0).getPack().getIdentifier());
-                model.addAttribute("mapOffices",officeService.getMapOffices());
-        }
-        return "tracker";
+    @ApiOperation(value="Просмотр трекеров с посылками", notes="Посмотреть все трекеры в базе данных на основе объекта Status")
+    @GetMapping(value = "/trackers", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public List<Status> getStatus() {
+        return statusTrackService.findAllTrackers();
     }
 
-        @PostMapping("/tracker")
-    public String changeStatus(ChangeStatusForm form){
-            statuses = statusTrackService.findTracksByPackIdentifier(form.getIdentifier());
-        return "redirect:/tracker";
+    @ApiOperation(value="обновить статус посылки", notes="Создать трекер с новым статусом на основе объекта Status. Вид статуса выбираем из списка (PROCESS, SEND, READY, COMPLETE)")
+    @PostMapping("/trackers")
+    public ResponseEntity<Status> changeStatus(ChangeStatusForm form){
+        return ResponseEntity.ok(packService.changeStatusOfTrack(form));
     }
 
-
-    @PostMapping("/tracker/add")
-    public String addStatus(ChangeStatusForm form){
-        packService.changeStatusOfTrack(form);
-        return "redirect:/tracker";
+    @ApiOperation(value="Просмотр трекеров по посылке", notes="Посмотреть все трекеры для указанного идентификатора посылки на основе объекта Status")
+    @GetMapping(value = "/trackers/findByIdentifier/{identifier}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public List<Status> getStatusByIdentifier(@PathVariable String identifier) {
+        return statusTrackService.findTracksByPackIdentifier(identifier);
     }
 
-    @GetMapping("/packages")
-    public String showPackages(ModelMap model) {
-        model.addAttribute("mapOffices",officeService.getMapOffices());
-        if (packages.isEmpty()) {
-            model.addAttribute("indexAndAddress","");
-        } else {
-            model.addAttribute("indexAndAddress",
-                    packages.get(0).getOffice().getIndex() + " " +packages.get(0).getOffice().getAddress());
-
-            model.addAttribute("findPackagesByIndex",packages);
-        }
-//
-        return "package";
-    }
-
-    @PostMapping("/packages")
-    public String findPackages(ChangeStatusForm form){
-        packages = statusTrackService.findTracksByPackIndexExclComplete(form.getIndex());
-        return "redirect:/packages";
+    @ApiOperation(value="Просмотр трекеров по текущему индексу", notes="Посмотреть все трекеры по индексу отделения, посылки которые нужно обработать этому отделению на основе объекта Status")
+    @GetMapping(value = "/trackers/findByIndex/{index}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public List<Status> getStatusByIdentifier(@PathVariable Integer index) {
+        return statusTrackService.findTracksByPackIndexExclComplete(index);
     }
 }
 

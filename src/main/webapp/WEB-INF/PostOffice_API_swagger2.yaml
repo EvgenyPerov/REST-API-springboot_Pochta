@@ -1,0 +1,461 @@
+swagger: '2.0'
+info:
+  description: api for post office
+  version: '1.0'
+  title: Post Office API
+  termsOfService: http://www.termsofservice.org
+  contact:
+    name: Evgeny Perov
+    url: https://github.com/EvgenyPerov
+    email: maiwork@yandex.ru
+  license:
+    name: api_license free
+    url: http://www.license.edu.org
+host: localhost:8080
+tags:
+  - name: change-status-controller
+    description: Change Status Controller
+  - name: office-controller
+    description: Office Controller
+  - name: registration-controller
+    description: Registration Controller
+paths:
+  /REST-API-Post-Office/api/offices:
+    get:
+      tags:
+        - office-controller
+      summary: Просмотр офисов
+      description: Посмотреть все офисы на основе объекта Office
+      operationId: getOfficeUsingGET
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Office'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+    post:
+      tags:
+        - office-controller
+      summary: Создать офис
+      description: Создать офис на основе объекта Office
+      operationId: setOfficeUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: address
+          in: query
+          description: полный адрес нового офиса, который вы создаете
+          required: false
+          type: string
+          x-example: г. Новосибирск, ул. Пушкина, д.3, кв.1
+        - name: index
+          in: query
+          description: индекс нового офиса, который вы создаете, это 6-ти значное число
+          required: false
+          type: integer
+          format: int32
+          x-example: 153000
+        - name: name
+          in: query
+          description: кратное название нового офиса, который вы создаете
+          required: false
+          type: string
+          x-example: Почта № 34
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Office'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /REST-API-Post-Office/api/offices/{index}:
+    get:
+      tags:
+        - office-controller
+      summary: Просмотр офиса
+      description: Посмотреть офис по индексу на основе объекта Office
+      operationId: getOfficeByIndexUsingGET
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: index
+          in: path
+          description: index
+          required: true
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Office'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /REST-API-Post-Office/api/registrations:
+    get:
+      tags:
+        - registration-controller
+      summary: Просмотр посылок
+      description: Посмотреть все посылки на основе объекта Pack
+      operationId: getPackRegistrationUsingGET
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Pack'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+    post:
+      tags:
+        - registration-controller
+      summary: Создать посылку
+      description: Создать посылку на основе объекта RegistrationForm. Тип посылки выбираем из списка (PARCEL, LETTER, WRAPPER, POSTCARD)
+      operationId: setPackRegistrationUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: address
+          in: query
+          description: адрес получателя посылки
+          required: false
+          type: string
+          x-example: г. Новосибирск, ул. Пушкина, д.3, кв.1
+        - name: cost
+          in: query
+          description: стоимость посылки с учетом доставки можно вводить не целое число
+          required: false
+          type: number
+          format: float
+          x-example: 307.88
+        - name: index
+          in: query
+          description: индекс отделения получателя посылки
+          required: false
+          type: integer
+          format: int32
+          x-example: 153000
+        - name: indexCurrentOffice
+          in: query
+          description: индекс вашего офиса, в котором регистрируется посылка, это 6-ти значное число
+          required: false
+          type: integer
+          format: int32
+          x-example: 153000
+        - name: name
+          in: query
+          description: Имя получателя посылки
+          required: false
+          type: string
+          x-example: Иванов Иван Иванович
+        - name: type
+          in: query
+          description: 'тип посылки выбираем из списка: PARCEL-Посылка, LETTER-Письмо, WRAPPER-Бандероль, POSTCARD-Открытка'
+          required: false
+          type: string
+          enum:
+            - LETTER
+            - PARCEL
+            - POSTCARD
+            - WRAPPER
+        - name: weight
+          in: query
+          description: вес посылки в КГ можно вводить не целое число
+          required: false
+          type: number
+          format: float
+          x-example: 5.09
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Pack'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /REST-API-Post-Office/api/registrations/{identifier}:
+    get:
+      tags:
+        - registration-controller
+      summary: Просмотр посылки
+      description: Посмотреть посылку по идентификатору на основе объекта Pack
+      operationId: getPackRegistrationByIdentifierUsingGET
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: identifier
+          in: path
+          description: identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Pack'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /REST-API-Post-Office/api/trackers:
+    get:
+      tags:
+        - change-status-controller
+      summary: Просмотр трекеров с посылками
+      description: Посмотреть все трекеры в базе данных на основе объекта Status
+      operationId: getStatusUsingGET
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Status'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+    post:
+      tags:
+        - change-status-controller
+      summary: обновить статус посылки
+      description: Создать трекер с новым статусом на основе объекта Status. Вид статуса выбираем из списка (PROCESS, SEND, READY, COMPLETE)
+      operationId: changeStatusUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: identifier
+          in: query
+          description: идентификатор посылки,у которой будет меняться статус
+          required: false
+          type: string
+          x-example: ID:7769-6753-0061
+        - name: index
+          in: query
+          description: индекс вашего офиса, в котором происходит изменение статуса посылки
+          required: false
+          type: integer
+          format: int32
+          x-example: 105275
+        - name: typeStatus
+          in: query
+          description: вид статуса выбираем из списка
+          required: false
+          type: string
+          enum:
+            - COMPLETE
+            - PROCESS
+            - READY
+            - SEND
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /REST-API-Post-Office/api/trackers/findByIdentifier/{identifier}:
+    get:
+      tags:
+        - change-status-controller
+      summary: Просмотр трекеров по посылке
+      description: Посмотреть все трекеры для указанного идентификатора посылки на основе объекта Status
+      operationId: getStatusByIdentifierUsingGET_1
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: identifier
+          in: path
+          description: identifier
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Status'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /REST-API-Post-Office/api/trackers/findByIndex/{index}:
+    get:
+      tags:
+        - change-status-controller
+      summary: Просмотр трекеров по текущему индексу
+      description: Посмотреть все трекеры по индексу отделения, посылки которые нужно обработать этому отделению на основе объекта Status
+      operationId: getStatusByIdentifierUsingGET
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: index
+          in: path
+          description: index
+          required: true
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Status'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+definitions:
+  Office:
+    type: object
+    properties:
+      address:
+        type: string
+        example: г. Новосибирск, ул. Пушкина, д.3, кв.1
+        description: адрес отделения
+      id:
+        type: integer
+        format: int32
+        description: id generation by DB auto
+      index:
+        type: integer
+        format: int32
+        example: 153000
+        description: индекс отделения
+      name:
+        type: string
+        example: Почта № 34
+        description: название отделения
+    title: Office
+    description: data model of Office entity
+  Pack:
+    type: object
+    properties:
+      addressDestination:
+        type: string
+        example: г. Новосибирск, ул. Пушкина, д.3, кв.1
+        description: адрес получателя посылки
+      cost:
+        type: number
+        format: float
+        example: 307.88
+        description: стоимость посылки с учетом доставки можно вводить не целое число
+      id:
+        type: integer
+        format: int64
+        description: id generation by DB auto
+      identifier:
+        type: string
+        description: уникальный идентификатор генерирует программа автоматически
+      indexDestination:
+        type: integer
+        format: int32
+        example: 153000
+        description: индекс отделения получателя посылки
+      nameDestination:
+        type: string
+        example: Иванов Иван Иванович
+        description: Имя получателя посылки
+      typePack:
+        type: string
+        description: тип посылки выбираем из списка (PARCEL, LETTER, WRAPPER, POSTCARD)
+        enum:
+          - LETTER
+          - PARCEL
+          - POSTCARD
+          - WRAPPER
+      weight:
+        type: number
+        format: float
+        example: 5.09
+        description: вес посылки в КГ можно вводить не целое число
+    title: Pack
+    description: data model of Pack entity
+  Status:
+    type: object
+    properties:
+      date:
+        type: string
+        description: дата создания статуса генерируется автоматически  = текущей
+      id:
+        type: integer
+        format: int64
+        description: id generation by DB auto
+      name:
+        type: string
+        description: вид статуса выбираем из списка (PROCESS, SEND, READY, COMPLETE)
+        enum:
+          - COMPLETE
+          - PROCESS
+          - READY
+          - SEND
+      office:
+        description: id текущего офиса в котором происходит изменение статуса посылки
+        $ref: '#/definitions/Office'
+      pack:
+        description: id посылки
+        $ref: '#/definitions/Pack'
+    title: Status
+    description: data model of Status entity

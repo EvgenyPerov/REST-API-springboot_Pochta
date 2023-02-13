@@ -9,8 +9,5 @@ import java.util.List;
 
 public interface OfficeRepository extends JpaRepository<Office, Integer> {
 
-//    @Query(value ="SELECT index_office FROM offices", nativeQuery = true)
-//    List<Integer> getIndexesOfOffices();
-
     Office findFirstByIndexIs(Integer index);
 }

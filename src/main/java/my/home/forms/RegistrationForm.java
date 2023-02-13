@@ -1,5 +1,7 @@
 package my.home.forms;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import my.home.models.Office;
 import my.home.models.TypePack;
@@ -8,22 +10,30 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import java.util.Objects;
 
+@ApiModel(description = "form for create a new Pack")
 @Data
 public class RegistrationForm {
 
+    @ApiModelProperty(value = "индекс вашего офиса, в котором регистрируется посылка, это 6-ти значное число", example = "153000")
     private Integer indexCurrentOffice;
 
+    @ApiModelProperty("тип посылки выбираем из списка: PARCEL-Посылка, LETTER-Письмо, WRAPPER-Бандероль, POSTCARD-Открытка")
     @Enumerated(value = EnumType.STRING)
     private TypePack type;
 
+    @ApiModelProperty(value = "вес посылки в КГ можно вводить не целое число" , example = "5.09")
     private float weight;
 
+    @ApiModelProperty(value = "стоимость посылки с учетом доставки можно вводить не целое число", example = "307.88")
     private float cost;
 
+    @ApiModelProperty(value = "Имя получателя посылки", example = "Иванов Иван Иванович")
     private String name;
 
+    @ApiModelProperty(value = "адрес получателя посылки", example = "г. Новосибирск, ул. Пушкина, д.3, кв.1")
     private String address;
 
+    @ApiModelProperty(value = "индекс отделения получателя посылки", example = "153000")
     private Integer index;
 
     @Override
